@@ -4,14 +4,14 @@ from .MonotonicNN import MonotonicNN
 
 
 class SlowDMonotonicNN(nn.Module):
-    def __init__(self, mon_in, cond_in, hiddens, n_out=1, device="cpu"):
+    def __init__(self, mon_in, cond_in, hiddens, n_out=1, nb_steps=50, device="cpu"):
         super(SlowDMonotonicNN, self).__init__()
         self.inner_nets = []
         self.mon_in = mon_in
         for i in range(mon_in):
-            self.inner_nets += [MonotonicNN(cond_in + 1, hiddens, nb_steps=30, dev=device)]
+            self.inner_nets += [MonotonicNN(cond_in + 1, hiddens, nb_steps=nb_steps, dev=device)]
         self.weights = nn.Parameter(torch.randn(mon_in)).to(device)
-        self.outer_net = MonotonicNN(1 + cond_in, hiddens, nb_steps=30, dev=device)
+        self.outer_net = MonotonicNN(1 + cond_in, hiddens, nb_steps=nb_steps, dev=device)
         self.device = device
 
     def to(self, device):
