@@ -42,6 +42,7 @@ class MonotonicNN(nn.Module):
         self.net = nn.Sequential(*self.net)
         self.device = dev
         self.nb_steps = nb_steps
+        self.to(dev)
 
     '''
     The forward procedure takes as input x which is the variable for which the integration must be made, h is just other conditionning variables.
