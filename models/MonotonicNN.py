@@ -45,7 +45,7 @@ class MonotonicNN(nn.Module):
         self.to(dev)
 
     def to(self, device):
-        self.net(device)
+        self.net.to(device)
         self.integrand.to(device)
 
     '''
