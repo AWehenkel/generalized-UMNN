@@ -18,6 +18,7 @@ class SlowDMonotonicNN(nn.Module):
         for net in self.inner_nets:
             net.to(device)
         self.outer_net.to(device)
+        self.weights.to(device)
         self.device = device
 
     def forward(self, mon_in, cond_in):

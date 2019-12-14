@@ -23,6 +23,9 @@ class IntegrandNN(nn.Module):
         self.net.append(nn.ELU())
         self.net = nn.Sequential(*self.net)
 
+    def to(self, device):
+        self.net.to(device)
+
     def forward(self, x, h):
         return self.net(torch.cat((x, h), 1)) + 1.
 
