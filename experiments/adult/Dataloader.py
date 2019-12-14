@@ -4,10 +4,10 @@ import pandas as pd
 
 
 class AdultDataset(Dataset):
-    def __init__(self, path):
-        self.df, self.y = self._prepare_data(path)
+    def __init__(self, path, test=False):
+        self.df, self.y = self._prepare_data(path, test)
 
-    def _prepare_data(self, path):
+    def _prepare_data(self, path, test):
         cols = [
             "age", "workclass", "fnlwgt", "education", "education_num",
             "marital_status", "occupation", "relationship", "race", "gender",
@@ -37,16 +37,34 @@ class AdultDataset(Dataset):
         one_hot_encode(df, "gender")
         one_hot_encode(df, "native_country")
         one_hot_encode(df, "education")
-        print(df.head())
         df = (df - df.mean())/df.std()
         col = df.columns
         mononotonic_cols = ["capital_gain", "hours_per_week", "education_num", " Male"]
         col = mononotonic_cols + list(set(col) - set(mononotonic_cols))
+        if test:
+            df[' Holand-Netherlands'] = 0
+            col = ['capital_gain', 'hours_per_week', 'education_num', ' Male', ' Separated', ' Tech-support',
+                     ' Without-pay', ' Widowed', ' Priv-house-serv', ' Puerto-Rico', ' Ecuador', ' Prof-specialty',
+                     ' France', ' Farming-fishing', ' Not-in-family', ' Other', ' Ireland', ' Black', ' Nicaragua',
+                     ' Philippines', ' Some-college', ' Hong', ' Prof-school', ' 12th', ' Germany', ' Adm-clerical',
+                     ' Assoc-acdm', ' Exec-managerial', ' Never-worked', ' Private', ' 10th', ' Doctorate',
+                     'capital_loss', ' Transport-moving', ' Poland', ' Husband', ' Yugoslavia', ' HS-grad',
+                     ' Female', ' Haiti', ' Peru', ' Canada', ' White', ' India', ' South', ' Iran', ' Greece',
+                     ' Sales', ' Honduras', ' Hungary', ' China', ' Machine-op-inspct', ' Own-child', ' 1st-4th',
+                     ' Divorced', ' El-Salvador', ' Protective-serv', ' Preschool', ' Vietnam', ' Holand-Netherlands',
+                     ' Assoc-voc', ' 5th-6th', ' Italy', ' Japan', ' Wife', ' Craft-repair', ' Self-emp-inc',
+                     ' Outlying-US(Guam-USVI-etc)', ' 7th-8th', ' United-States', ' Unmarried', 'age',
+                     ' Married-AF-spouse', ' Taiwan', ' Trinadad&Tobago', ' Never-married', ' Jamaica',
+                     ' Other-service', ' Masters', ' Cambodia', ' Married-spouse-absent', ' Dominican-Republic',
+                     ' ?', ' Asian-Pac-Islander', ' Cuba', ' Portugal', ' England', ' State-gov', ' Armed-Forces',
+                     ' Married-civ-spouse', ' Amer-Indian-Eskimo', ' Guatemala', ' 11th', ' Columbia',
+                     ' Other-relative', ' Federal-gov', ' Local-gov', ' 9th', ' Self-emp-not-inc', ' Scotland',
+                     ' Laos', ' Bachelors', ' Thailand', ' Handlers-cleaners', ' Mexico']
         y = pd.get_dummies(pd.read_csv(path, names=cols, usecols=['income_bracket'])).iloc[:, 1]
         return df[col], y
 
     def __len__(self):
-        return 20#self.df.shape[0]
+        return self.df.shape[0]
 
     def __getitem__(self, idx):
         return self.df.iloc[idx, :].to_numpy(), self.y[idx]
