@@ -19,4 +19,4 @@
 #
 
 source activate UMNN
-python experiments/adult/AdultExperiment.py
+python run_adult.py
