@@ -58,5 +58,5 @@ def run_adult_experiment():
         writer.add_scalars("Adult/BCE", {"test": avg_loss / i}, epoch)
         writer.add_scalars("Adult/Accuracy", {"test": avg_accuracy / i}, epoch)
         print("test", epoch, avg_loss / i, avg_accuracy / i)
-        torch.save(net.cpu().state_dict(), "model.ckpt")
+        torch.save(net.state_dict(), "model.ckpt")
 
