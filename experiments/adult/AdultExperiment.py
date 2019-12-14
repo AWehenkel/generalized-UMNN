@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 from Dataloader import AdultDataset
-from models import SlowDMonotonicNN
+from ...models import SlowDMonotonicNN
 from tensorboardX import SummaryWriter
 
 
@@ -59,5 +59,4 @@ for epoch in range(1000):
     writer.add_scalars("Adult/Accuracy", {"test": avg_accuracy / i}, epoch)
     print("test", epoch, avg_loss / i, avg_accuracy / i)
     torch.save(net.cpu().state_dict(), "model.ckpt")
-    print(epoch, avg_loss/i, avg_accuracy/i)
 
