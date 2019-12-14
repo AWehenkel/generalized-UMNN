@@ -4,7 +4,10 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 from Dataloader import AdultDataset
 from models import SlowDMonotonicNN
+from tensorboardX import SummaryWriter
 
+
+writer = SummaryWriter()
 train_ds = AdultDataset("../../data/adult/adult.data")
 test_ds = AdultDataset("../../data/adult/adult.test", test=True)
 
@@ -36,6 +39,8 @@ for epoch in range(1000):
         i += 1
         if i % 100 == 0:
             print(i)
+    writer.add_scalars("Adult/BCE", {"train": avg_loss / i}, epoch)
+    writer.add_scalars("Adult/Accuracy", {"train": avg_accuracy / i}, epoch)
     print("train", epoch, avg_loss / i, avg_accuracy / i)
     avg_loss = 0.
     i = 0
@@ -50,6 +55,8 @@ for epoch in range(1000):
             i += 1
             if i % 100 == 0:
                 print(i)
+    writer.add_scalars("Adult/BCE", {"test": avg_loss / i}, epoch)
+    writer.add_scalars("Adult/Accuracy", {"test": avg_accuracy / i}, epoch)
     print("test", epoch, avg_loss / i, avg_accuracy / i)
     torch.save(net.cpu().state_dict(), "model.ckpt")
     print(epoch, avg_loss/i, avg_accuracy/i)

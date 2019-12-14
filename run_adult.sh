@@ -18,6 +18,5 @@
 #SBATCH --gres=gpu:1
 #
 
-cd experiments/adult
 conda activate UMNN
-python AdultExperiment.py
+python experiments/adult/AdultExperiment.py
