@@ -19,4 +19,5 @@
 #3
 
 cd experiments/adult
-python AdultExperiment.py
+conda activate UMNN
+srun python AdultExperiment.py
