@@ -63,7 +63,7 @@ class AdultDataset(Dataset):
         return df[col], y
 
     def __len__(self):
-        return self.df.shape[0]
+        return 1000#self.df.shape[0]
 
     def __getitem__(self, idx):
         return self.df.iloc[idx, :].to_numpy(), self.y[idx]
