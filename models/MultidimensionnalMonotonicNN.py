@@ -9,9 +9,9 @@ class SlowDMonotonicNN(nn.Module):
         self.inner_nets = []
         self.mon_in = mon_in
         for i in range(mon_in):
-            self.inner_nets += [MonotonicNN(cond_in + 1, hiddens, nb_steps=30, dev="cpu")]
-        self.weights = nn.Parameter(torch.randn(mon_in))
-        self.outer_net = MonotonicNN(1 + cond_in, hiddens, nb_steps=30, dev="cpu")
+            self.inner_nets += [MonotonicNN(cond_in + 1, hiddens, nb_steps=30, dev=device)]
+        self.weights = nn.Parameter(torch.randn(mon_in)).to(device)
+        self.outer_net = MonotonicNN(1 + cond_in, hiddens, nb_steps=30, dev=device)
 
     def forward(self, mon_in, cond_in):
         inner_out = torch.zeros(mon_in.shape)
