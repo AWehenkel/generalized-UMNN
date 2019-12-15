@@ -48,10 +48,12 @@ def run_adult_experiment():
         avg_loss = 0.
         i = 0
         avg_accuracy = 0.
+        net.set_steps(100)
         for x, y in test_dl:
             with torch.no_grad():
                 x, y = x.float().to(device), y.float().to(device)
-                y_est = sigmoid(net(x[:, :4], x[:, 4:])).squeeze(1)
+                h = embedding_net(x[:, 4:])
+                y_est = sigmoid(net(x[:, :4], h)).squeeze(1)
                 loss = loss_f(y_est, y)
                 avg_loss += loss.item()
                 avg_accuracy += torch.abs((y_est > .5).float() == y).float().mean()
