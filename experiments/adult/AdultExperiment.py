@@ -38,7 +38,7 @@ def run_adult_experiment():
             optim.step()
             avg_loss += loss.item()
             avg_accuracy += torch.abs((y_est.detach() > .5).float() == y).float().mean()
-            net.set_steps(int(torch.randint(30, 60, [0])))
+            net.set_steps(int(torch.randint(30, 60, [1])))
             i += 1
             if i % 100 == 0:
                 print(i)
