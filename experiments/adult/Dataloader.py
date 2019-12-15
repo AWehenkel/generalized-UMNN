@@ -3,7 +3,8 @@ import pandas as pd
 
 
 class AdultDataset(Dataset):
-    def __init__(self, path, test=False):
+    def __init__(self, path, test=False, normalization=True):
+        self.normalization = normalization
         self.df, self.y = self._prepare_data(path, test)
 
     def _prepare_data(self, path, test):
@@ -36,7 +37,10 @@ class AdultDataset(Dataset):
         one_hot_encode(df, "gender")
         one_hot_encode(df, "native_country")
         one_hot_encode(df, "education")
-        df = (df - df.mean())/df.std()
+        if self.normalization:
+            self.mu = df.mean()
+            self.std = df.std()
+            df = (df - df.mean())/df.std()
         col = ['capital_gain', 'hours_per_week', 'education_num', ' Male', ' Separated', ' Tech-support',
                ' Without-pay', ' Widowed', ' Priv-house-serv', ' Puerto-Rico', ' Ecuador', ' Prof-specialty',
                ' France', ' Farming-fishing', ' Not-in-family', ' Other', ' Ireland', ' Black', ' Nicaragua',
@@ -59,6 +63,9 @@ class AdultDataset(Dataset):
 
         y = pd.get_dummies(pd.read_csv(path, names=cols, usecols=['income_bracket'])).iloc[:, 1]
         return df[col], y
+
+    def normalize(self, mu, std):
+        self.df = (self.df - mu)/std
 
     def __len__(self):
         return self.df.shape[0]

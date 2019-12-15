@@ -10,7 +10,10 @@ from tensorboardX import SummaryWriter
 def run_adult_experiment():
     writer = SummaryWriter()
     train_ds = AdultDataset("data/adult/adult.data")
-    test_ds = AdultDataset("data/adult/adult.test", test=True)
+    test_ds = AdultDataset("data/adult/adult.test", test=True, normalization=False)
+
+    mu, std = train_ds.mu, train_ds.std
+    test_ds.normalize(mu, std)
 
     train_dl = DataLoader(train_ds, 100, shuffle=True, num_workers=4)
     test_dl = DataLoader(test_ds, 100, shuffle=True, num_workers=4)
