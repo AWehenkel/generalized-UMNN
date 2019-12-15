@@ -6,6 +6,7 @@ from experiments.adult.Dataloader import AdultDataset
 from models import SlowDMonotonicNN
 from tensorboardX import SummaryWriter
 
+
 def run_adult_experiment():
     writer = SummaryWriter()
     train_ds = AdultDataset("data/adult/adult.data")
@@ -16,9 +17,9 @@ def run_adult_experiment():
 
     x, y = train_ds[1]
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    #net = nn.Sequential(nn.Linear(len(x), 200), nn.ReLU(), nn.Linear(200, 200), nn.ReLU(), nn.Linear(200, 1))#
-    net = SlowDMonotonicNN(4, len(x) - 4, [50, 50, 50], 1, 100, device)
-    net.load_state_dict(torch.load("model.ckpt"))
+    embedding_net = nn.Sequential(nn.Linear(len(x) - 4, 200), nn.ReLU(), nn.Linear(200, 200), nn.ReLU(), nn.Linear(200, 20))#
+    net = SlowDMonotonicNN(4, 20, [50, 50, 50], 1, 100, device)
+    #net.load_state_dict(torch.load("model.ckpt"))
     optim = Adam(net.parameters(), lr=.001, weight_decay=1e-3)
     loss_f = nn.BCELoss()
     sigmoid = nn.Sigmoid()
@@ -29,7 +30,8 @@ def run_adult_experiment():
         avg_accuracy = 0.
         for x, y in train_dl:
             x,y = x.float().to(device), y.float().to(device)
-            y_est = sigmoid(net(x[:, :4], x[:, 4:])).squeeze(1)
+            h = embedding_net(x[:, 4:])
+            y_est = sigmoid(net(x[:, :4], h)).squeeze(1)
             loss = loss_f(y_est, y)
             optim.zero_grad()
             loss.backward()
