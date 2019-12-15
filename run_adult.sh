@@ -9,7 +9,7 @@
 #SBATCH --export=ALL
 #SBATCH --parsable
 #SBATCH --job-name "ADULT_MONOTONICITY"
-#SBATCH --output "ADULT_MONOTONICITY_%a.log"
+#SBATCH --output "ADULT_MONOTONICITY_%A.log"
 #SBATCH --requeue
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=4000
