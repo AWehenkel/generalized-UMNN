@@ -18,9 +18,9 @@ def run_adult_experiment():
     x, y = train_ds[1]
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     embedding_net = nn.Sequential(nn.Linear(len(x) - 4, 200), nn.ReLU(), nn.Linear(200, 200), nn.ReLU(), nn.Linear(200, 20))#
-    net = SlowDMonotonicNN(4, 20, [50, 50, 50], 1, 100, device)
+    net = SlowDMonotonicNN(4, 20, [100, 100, 100], 1, 100, device)
     #net.load_state_dict(torch.load("model.ckpt"))
-    optim = Adam(net.parameters(), lr=.001, weight_decay=1e-3)
+    optim = Adam(net.parameters(), lr=.001, weight_decay=1e-5)
     loss_f = nn.BCELoss()
     sigmoid = nn.Sigmoid()
 
@@ -38,6 +38,7 @@ def run_adult_experiment():
             optim.step()
             avg_loss += loss.item()
             avg_accuracy += torch.abs((y_est.detach() > .5).float() == y).float().mean()
+            net.set_steps(int(torch.randint(30, 60, [0])))
             i += 1
             if i % 100 == 0:
                 print(i)
