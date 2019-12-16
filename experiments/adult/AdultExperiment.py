@@ -21,21 +21,42 @@ class EmbeddingNet(nn.Module):
         h = self.embedding_net(x[:, 4:])
         return torch.sigmoid(self.umnn(x[:, :4], h))
 
+
+class SimpleMLP(nn.Module):
+    def __init__(self, in_embedding, in_main, out_embedding, device):
+        super(SimpleMLP, self).__init__()
+        self.embedding_net = nn.Sequential(nn.Linear(in_embedding, 100), nn.ReLU(),
+                                      nn.Linear(100, 100), nn.ReLU(),
+                                      nn.Linear(100, out_embedding), nn.ReLU()).to(device)
+        self.mlp = nn.Sequential(nn.Linear(in_main + out_embedding, 100), nn.ReLU(),
+                                  nn.Linear(100, 100), nn.ReLU(),
+                                  nn.Linear(100, 1), nn.Sigmoid()).to(device)
+
+    def set_steps(self, nb_steps):
+        return
+
+    def forward(self, x):
+        h = self.embedding_net(x[:, 4:])
+        return self.mlp(torch.cat((x[:, :4], h), 1))
+
+
 def run_adult_experiment():
     writer = SummaryWriter()
-    train_ds = AdultDataset("data/adult/adult.data")
+    train_ds = AdultDataset("data/adult/adult.data", normalization=True)
     test_ds = AdultDataset("data/adult/adult.test", test=True, normalization=False)
 
     mu, std = train_ds.mu, train_ds.std
     test_ds.normalize(mu, std)
 
-    train_dl = DataLoader(train_ds, 100, shuffle=True, num_workers=4)
-    test_dl = DataLoader(test_ds, 100, shuffle=True, num_workers=4)
+    train_dl = DataLoader(train_ds, 100, shuffle=False, num_workers=1)
+    test_dl = DataLoader(test_ds, 100, shuffle=False, num_workers=1)
 
     x, y = train_ds[1]
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     net = EmbeddingNet(len(x) - 4, 4, 30, device)
+    #net = SimpleMLP(len(x) - 4, 4, 30, device)
+
 
     if False:
         net.load_state_dict(torch.load("model.ckpt"))
@@ -74,6 +95,8 @@ def run_adult_experiment():
             avg_loss += loss.item()
             avg_accuracy += torch.abs((y_est.detach() > .5).float() == y).float().mean()
             net.set_steps(int(torch.randint(30, 60, [1])))
+            #net.set_steps(100)
+
             i += 1
             if i % 100 == 0:
                 print(i)

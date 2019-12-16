@@ -6,6 +6,7 @@ class AdultDataset(Dataset):
     def __init__(self, path, test=False, normalization=True):
         self.normalization = normalization
         self.df, self.y = self._prepare_data(path, test)
+        self.test = test
 
     def _prepare_data(self, path, test):
         cols = [
@@ -37,10 +38,7 @@ class AdultDataset(Dataset):
         one_hot_encode(df, "gender")
         one_hot_encode(df, "native_country")
         one_hot_encode(df, "education")
-        if self.normalization:
-            self.mu = df.mean()
-            self.std = df.std()
-            df = (df - df.mean())/df.std()
+
         col = ['capital_gain', 'hours_per_week', 'education_num', ' Male', ' Separated', ' Tech-support',
                ' Without-pay', ' Widowed', ' Priv-house-serv', ' Puerto-Rico', ' Ecuador', ' Prof-specialty',
                ' France', ' Farming-fishing', ' Not-in-family', ' Other', ' Ireland', ' Black', ' Nicaragua',
@@ -61,8 +59,16 @@ class AdultDataset(Dataset):
         if test:
             df[' Holand-Netherlands'] = 0
 
-        y = pd.get_dummies(pd.read_csv(path, names=cols, usecols=['income_bracket'])).iloc[:, 1]
-        return df[col], y
+        y = pd.get_dummies(pd.read_csv(path, names=cols, usecols=['income_bracket'])).iloc[1:, 1]
+        #print(y.shape)
+        #y = df[' Male']
+        #print(y.shape)
+        df = df[col]
+        if self.normalization:
+            self.mu = df.mean(0)
+            self.std = df.std(0)
+            df = (df - df.mean(0))/df.std(0)
+        return df, y
 
     def normalize(self, mu, std):
         self.df = (self.df - mu)/std
@@ -71,7 +77,7 @@ class AdultDataset(Dataset):
         return self.df.shape[0]
 
     def __getitem__(self, idx):
-        return self.df.iloc[idx, :].to_numpy(), self.y[idx]
+        return self.df.iloc[idx, :].to_numpy(), self.y.iloc[idx]
 
 
 
