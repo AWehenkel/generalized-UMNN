@@ -48,7 +48,7 @@ def run_adult_experiment():
     mu, std = train_ds.mu, train_ds.std
     test_ds.normalize(mu, std)
 
-    train_dl = DataLoader(train_ds, 100, shuffle=False, num_workers=1)
+    train_dl = DataLoader(train_ds, 100, shuffle=True, num_workers=1)
     test_dl = DataLoader(test_ds, 100, shuffle=False, num_workers=1)
 
     x, y = train_ds[1]
@@ -78,7 +78,7 @@ def run_adult_experiment():
             plt.scatter(x[:, 3], y)
         plt.show()
         exit()
-    optim = Adam(net.parameters(), lr=.001, weight_decay=1e-5)
+    optim = Adam(net.parameters(), lr=.0001, weight_decay=1e-2)
     loss_f = nn.BCELoss()
 
     for epoch in range(1000):
