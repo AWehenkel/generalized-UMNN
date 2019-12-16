@@ -6,6 +6,20 @@ from experiments.adult.Dataloader import AdultDataset
 from models import SlowDMonotonicNN
 from tensorboardX import SummaryWriter
 
+class EmbeddingNet(nn.Module):
+    def __init__(self, in_embedding, in_main, out_embedding, device):
+        super(EmbeddingNet, self).__init__()
+        self.embedding_net = nn.Sequential(nn.Linear(in_embedding, 200), nn.ReLU(),
+                                      nn.Linear(200, 200), nn.ReLU(),
+                                      nn.Linear(200, out_embedding), nn.ReLU()).to(device)
+        self.umnn = SlowDMonotonicNN(in_main, out_embedding, [100, 100, 100], 1, 300, device)
+
+    def set_steps(self, nb_steps):
+        self.umnn.set_steps(nb_steps)
+
+    def forward(self, x):
+        h = self.embedding_net(x[:, 4:])
+        return torch.sigmoid(self.umnn(x[:, :4], h))
 
 def run_adult_experiment():
     writer = SummaryWriter()
@@ -20,10 +34,9 @@ def run_adult_experiment():
 
     x, y = train_ds[1]
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    embedding_net = nn.Sequential(nn.Linear(len(x) - 4, 200), nn.ReLU(),
-                                  nn.Linear(200, 200), nn.ReLU(),
-                                  nn.Linear(200, 100), nn.ReLU()).to(device)
-    net = SlowDMonotonicNN(4, 100, [100, 100, 100], 1, 300, device)
+
+    net = EmbeddingNet(len(x) - 4, 4, 30, device)
+
     if False:
         net.load_state_dict(torch.load("model.ckpt"))
         x = torch.randn(500, 4)
@@ -46,7 +59,6 @@ def run_adult_experiment():
         exit()
     optim = Adam(net.parameters(), lr=.001, weight_decay=1e-5)
     loss_f = nn.BCELoss()
-    sigmoid = nn.Sigmoid()
 
     for epoch in range(1000):
         avg_loss = 0.
@@ -54,8 +66,7 @@ def run_adult_experiment():
         avg_accuracy = 0.
         for x, y in train_dl:
             x,y = x.float().to(device), y.unsqueeze(1).float().to(device)
-            h = embedding_net(x[:, 4:])
-            y_est = sigmoid(net(x[:, :4], h))
+            y_est = net(x)
             loss = loss_f(y_est, y)
             optim.zero_grad()
             loss.backward()
@@ -76,8 +87,7 @@ def run_adult_experiment():
         for x, y in test_dl:
             with torch.no_grad():
                 x, y = x.float().to(device), y.unsqueeze(1).float().to(device)
-                h = embedding_net(x[:, 4:])
-                y_est = sigmoid(net(x[:, :4], h))
+                y_est = net(x)
                 loss = loss_f(y_est, y)
                 avg_loss += loss.item()
                 avg_accuracy += torch.abs((y_est > .5).float() == y).float().mean()
