@@ -2,6 +2,8 @@
 Extension to multivariate unconstrained monotonic functions.
 Direct application of the underlying principle behind the Kolmogorov-Arnold theorem.
 
+This repository is a sketch of the possibility to model functions that are monotonic with respect to more than one input variable.
+
 For detailed information visit the [UMNN git repository](https://github.com/AWehenkel/UMNN).
 
 ## Cite
